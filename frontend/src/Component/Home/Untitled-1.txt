@@ -1,0 +1,11 @@
+-- database: c:\Users\aksha\Desktop\react all project\react-and-node-js login page\backend\user.db
+
+-- Use the ▷ button in the top right corner to run the entire file.
+
+SELECT * FROM user;
+
+CREATE TABLE employee (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT,
+    position TEXT
+)
