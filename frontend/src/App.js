@@ -7,7 +7,7 @@ Username: akshay9022@gmail.com & Password: akshay9022 */
 //node index.js 
 
 //open new terminal
-//cd myapp 
+//cd frontend 
 //npm start
 
 
