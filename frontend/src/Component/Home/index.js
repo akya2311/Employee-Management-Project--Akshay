@@ -12,14 +12,15 @@
 //cd myapp 
 //npm start
 
+
+
 import React, { Component } from "react";
 import Cookies from 'js-cookie';
 import { Link } from "react-router-dom"
-
+import EmployeesList from './EmployeesList';
 class Home extends Component {
     state = {
         isLoggedIn: true,
-        employees: [],
         admin: [],
         username: '',
         password: '',
@@ -29,12 +30,12 @@ class Home extends Component {
     }
 
     componentDidMount = async () => {
-        await this.allemployee();
         const jwtToken = Cookies.get('jwt_token')
         if (jwtToken !== undefined) {
             this.setState({ isLoggedIn: false })
             await this.getAdmin(jwtToken);
         }
+        
     }
 
     onChangeUsername = (event) => {
@@ -45,28 +46,29 @@ class Home extends Component {
         this.setState({ password: event.target.value })
     }
 
-    getAdmin = async (jwtToken) => {
-        const option = {
-            headers: {
-                Authorization: `Bearer ${jwtToken}`,
-            },
-            method: 'GET',
-        }
-        try {
-            const response = await fetch('/profile/', option);
-            if (!response.ok) {
-                throw new Error('Error fetching profile')
-            }
-            const data = await response.json()
-            if (data.role === 'admin') {
+     getAdmin = async (jwtToken) => {
+         const option = {
+             headers: {
+                 Authorization: `Bearer ${jwtToken}`,
+             },
+             method: 'GET',
+         }
+         try {
+             const response = await fetch('/profile/', option);
+             console.log(response.ok)
+             if (response.ok) {
                 this.setState({ adminPanel: true })
-            }
-        } catch (error) {
-            console.error(error)
-        }
-    }
+             }
+             else{
+                this.setState({adminPanel: false})
+                throw new Error('Error fetching profile')
+             } 
+             }catch (error) {
+             console.error(error)
+         }
+     }
 
-    onSubmitSuccess = (jwtToken, dbUser) => {
+    onSubmitSuccess = (jwtToken) => {
         Cookies.set('jwt_token', jwtToken, {
             expires: 30,
             path: '/',
@@ -93,11 +95,10 @@ class Home extends Component {
             const response = await fetch(url, options)
             const data = await response.json()
             const jwtToken = data.jwtToken
-            const dbUser = data.dbUser
 
             if (response.ok) {
-                this.onSubmitSuccess(jwtToken, dbUser)
-                await this.getAdmin(jwtToken); // Fetch admin data after successful login
+                this.onSubmitSuccess(jwtToken)
+                this.getAdmin(jwtToken)
             } else {
                 this.setState({ showSubmitError: true, errorMsg: data })
             }
@@ -106,44 +107,25 @@ class Home extends Component {
         this.setState({ username: "", password: "" })
     }
 
-    allemployee = async () => {
-        const jwtToken = Cookies.get('jwt_token')
-        const option = {
-            headers: {
-                Authorization: `Bearer ${jwtToken}`,
-            },
-            method: 'GET'
-        }
-        try {
-            const response = await fetch('/employee/api/', option);
-            if (!response.ok) {
-                throw new Error('Error fetching employees')
-            }
-            const data = await response.json()
-            this.setState({ employees: data })
-        } catch (error) {
-            console.error(error)
-        }
-    }
-
     onClickLogin = () => {
         Cookies.remove('jwt_token')
+        this.setState({adminPanel: false})
         this.setState({ isLoggedIn: true })
     }
 
     onClickLogout = () => {
         Cookies.remove('jwt_token')
+        this.setState({adminPanel: false})
         this.setState({ isLoggedIn: true })
     }
 
     render() {
-        const { username, password, errorMsg, showSubmitError, adminPanel, isLoggedIn, employees } = this.state
+        const { username, password, errorMsg, showSubmitError, adminPanel, isLoggedIn } = this.state
 
         return (
             <div className="container mt-5">
                 {isLoggedIn ? (
                     <div>
-
                         <div className="container d-flex justify-content-center flex-column">
                             <form onSubmit={this.submitForm} className="container">
                                 <legend>Login User</legend>
@@ -165,50 +147,34 @@ class Home extends Component {
                     </div>
                 ) : (
                     <div>
-                        <nav className="navbar navbar-expand-lg navbar-light bg-light">
-                            <div className="container">
-                                <Link className="navbar-brand" to="/">Home</Link>
-                                <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                                    <span className="navbar-toggler-icon"></span>
-                                </button>
-                                <div className="collapse navbar-collapse" id="navbarNav">
-                                    <ul className="navbar-nav ml-auto">
-                                        <li className="nav-item">
-                                            <button className="btn btn-danger mr-3" onClick={this.onClickLogout}>Log Out</button>
-                                        </li>
-                                        <li className="nav-item">
-                                            <button className="btn btn-primary mb-3" onClick={this.onClickLogin}>Login</button>
-                                        </li>
-                                        {adminPanel && (
-                                            <li className="nav-item">
-                                                <Link className="nav-link" to="/admin">Admin Panel</Link>
-                                            </li>
-                                        )}
-                                    </ul>
-                                </div>
+                        <div className="container mt-5">
+                            <div>
+                                <nav className="navbar navbar-expand-lg navbar-light bg-light">
+                                    <div className="container">
+                                        <Link className="navbar-brand" to="/">Home</Link>
+                                        <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                                            <span className="navbar-toggler-icon"></span>
+                                        </button>
+                                        <div className="collapse navbar-collapse" id="navbarNav">
+                                            <ul className="navbar-nav ml-auto">
+                                                <li className="nav-item">
+                                                    <button className="btn btn-danger mr-3" onClick={this.onClickLogout}>Log Out</button>
+                                                </li>
+                                                <li className="nav-item">
+                                                    <button className="btn btn-primary mb-3" onClick={this.onClickLogin}>Login</button>
+                                                </li>
+                                                {adminPanel && (
+                                                    <li className="nav-item">
+                                                        <Link className="nav-link" to="/admin">Admin Panel</Link>
+                                                    </li>
+                                                )}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </nav>
                             </div>
-                        </nav>
-                        <div>
-                            <h2>Employee List</h2>
-                            <table className="table">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Name</th>
-                                        <th>Position</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {employees.map(employee => (
-                                        <tr key={employee.id}>
-                                            <td>{employee.id}</td>
-                                            <td>{employee.name}</td>
-                                            <td>{employee.position}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
                         </div>
+                        <EmployeesList />
                     </div>
                 )}
             </div>
