@@ -33,7 +33,7 @@ class AddEmployee extends Component {
         if (!response.ok) {
           throw new Error('Response post not ok');
         }
-        alert(`Employee id: ${name} Added Successfully`)
+        alert(`Employee ${name} : Added Successfully`)
         this.setState({ name: '', position: '' });
       } catch (error) {
         console.error(error);
