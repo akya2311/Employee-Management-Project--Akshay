@@ -55,7 +55,6 @@ class Home extends Component {
          }
          try {
              const response = await fetch('/profile/', option);
-             console.log(response.ok)
              if (response.ok) {
                 this.setState({ adminPanel: true })
              }
