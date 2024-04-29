@@ -61,7 +61,7 @@ class Home extends Component {
              }
              else{
                 this.setState({adminPanel: false})
-                throw new Error('Error fetching profile')
+                
              } 
              }catch (error) {
              console.error(error)
